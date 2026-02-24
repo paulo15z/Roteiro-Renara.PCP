@@ -1,0 +1,28 @@
+services:
+  roteiro-pcp:
+    build: .
+    image: roteiro-pcp:latest
+    container_name: roteiro-pcp
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - DATA_DIR=/data
+      - FLASK_DEBUG=0
+    volumes:
+      # Dados persistentes ficam no host do Proxmox
+      # Caminho no host: /opt/roteiro-pcp/data
+      - pcp-data:/data
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pcp-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/roteiro-pcp/data

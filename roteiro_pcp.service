@@ -1,0 +1,14 @@
+[Unit]
+Description=Roteiro PCP - Marcenaria
+After=network.target
+
+[Service]
+User=www-data
+WorkingDirectory=/opt/roteiro_pcp
+ExecStart=/opt/roteiro_pcp/venv/bin/python app.py
+Restart=always
+RestartSec=5
+Environment=FLASK_ENV=production
+
+[Install]
+WantedBy=multi-user.target
