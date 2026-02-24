@@ -296,6 +296,7 @@ def processar_arquivo(file):
     return df
 
 
+@app.route('/')
 def index():
     return render_template('index.html')
 
@@ -376,7 +377,8 @@ def deletar(pid):
     return jsonify({'ok': True})
 
 if __name__ == '__main__':
-    init_db()
+    with app.app_context():
+        init_db()
     debug = os.environ.get('FLASK_DEBUG', '0') == '1'
     host  = '127.0.0.1' if debug else '0.0.0.0'
     app.run(host=host, port=5000, debug=debug)
