@@ -21,7 +21,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  /* ── Header ── */
   header {
     background: var(--primary);
     color: #fff;
@@ -35,7 +34,6 @@
   header h1 { font-size: 1rem; font-weight: 600; letter-spacing: .03em; }
   header span { font-size: .78rem; opacity: .65; }
 
-  /* ── Tabs ── */
   .tabs { display: flex; gap: 2px; background: var(--primary); padding: 0 32px; }
   .tab {
     padding: 10px 20px;
@@ -50,12 +48,10 @@
   .tab:hover { color: #fff; }
   .tab.active { color: #fff; border-bottom-color: #60a5fa; }
 
-  /* ── Main ── */
   main { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* ── Cards ── */
   .card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -65,7 +61,6 @@
   }
   .card h2 { font-size: .95rem; font-weight: 600; color: var(--primary); margin-bottom: 16px; }
 
-  /* ── Upload area ── */
   .drop-area {
     border: 2px dashed var(--border);
     border-radius: 8px;
@@ -81,7 +76,6 @@
   #file-input { display: none; }
   #file-name { margin-top: 10px; font-size: .85rem; color: var(--accent); font-weight: 500; }
 
-  /* ── Btn ── */
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 9px 20px; border-radius: 6px; border: none;
@@ -94,91 +88,38 @@
   .btn-success { background: var(--success); color: #fff; }
   .btn-success:hover { background: #15803d; }
   .btn-danger  { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
-  .btn-danger:hover  { background: #fef2f2; }
 
-  /* ── Progress ── */
   #progress-wrap { display: none; margin-top: 16px; }
   .progress-bar { height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
-  .progress-fill {
-    height: 100%; width: 0%; background: var(--accent);
-    border-radius: 99px;
-    transition: width .3s;
-    animation: pulse-bar 1.5s ease-in-out infinite;
-  }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .3s; animation: pulse-bar 1.5s ease-in-out infinite; }
   @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.6} }
   #progress-label { font-size: .8rem; color: var(--muted); margin-top: 6px; }
 
-  /* ── Alert ── */
-  .alert {
-    display: none; padding: 12px 16px; border-radius: 6px;
-    font-size: .85rem; margin-top: 16px; border-left: 4px solid;
-  }
+  .alert { display: none; padding: 12px 16px; border-radius: 6px; font-size: .85rem; margin-top: 16px; border-left: 4px solid; }
   .alert-err  { background: #fef2f2; border-color: var(--danger); color: #991b1b; }
   .alert-ok   { background: #f0fdf4; border-color: var(--success); color: #166534; }
 
-  /* ── Resultado ── */
   #resultado { display: none; }
   .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
-  .stat-box {
-    flex: 1; min-width: 140px;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 16px;
-    text-align: center;
-  }
+  .stat-box { flex: 1; min-width: 140px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
   .stat-box .num { font-size: 2rem; font-weight: 700; color: var(--primary); }
   .stat-box .lbl { font-size: .78rem; color: var(--muted); margin-top: 2px; }
 
-  /* ── Resumo roteiros ── */
   .roteiro-list { display: flex; flex-direction: column; gap: 8px; }
-  .roteiro-row {
-    display: flex; align-items: center; gap: 10px;
-    font-size: .83rem;
-  }
+  .roteiro-row { display: flex; align-items: center; gap: 10px; font-size: .83rem; }
   .roteiro-row .rota { font-family: 'Consolas', monospace; color: var(--primary); flex: 1; }
   .roteiro-row .bar-wrap { flex: 2; height: 8px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
   .roteiro-row .bar-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .5s; }
   .roteiro-row .qtd { width: 32px; text-align: right; color: var(--muted); font-weight: 600; }
 
-  /* ── Prévia tabela ── */
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-  thead th {
-    background: var(--primary); color: #fff;
-    padding: 9px 12px; text-align: left;
-    font-weight: 600; white-space: nowrap;
-  }
+  thead th { background: var(--primary); color: #fff; padding: 9px 12px; text-align: left; font-weight: 600; white-space: nowrap; }
   tbody tr:nth-child(even) { background: var(--bg); }
   tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); }
-  td.rota-cell {
-    font-family: 'Consolas', monospace; font-size: .78rem;
-    color: var(--primary); font-weight: 600;
-    background: #fffbeb;
-    white-space: nowrap;
-  }
+  td.rota-cell { font-family: 'Consolas', monospace; font-size: .78rem; color: var(--primary); font-weight: 600; background: #fffbeb; white-space: nowrap; }
 
-  /* ── Histórico ── */
-  .hist-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
-  .hist-table thead th {
-    background: var(--primary); color: #fff;
-    padding: 9px 14px; text-align: left; font-weight: 600;
-  }
-  .hist-table tbody tr:nth-child(even) { background: var(--bg); }
-  .hist-table tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
-  .hist-empty { color: var(--muted); font-size: .88rem; padding: 24px 0; text-align: center; }
-
-  /* ── Badge ── */
-  .badge {
-    display: inline-block; padding: 2px 8px;
-    border-radius: 99px; font-size: .72rem; font-weight: 600;
-  }
-  .badge-blue { background: #dbeafe; color: #1e40af; }
-
-  /* ── Sector chips ── */
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-  .chip {
-    padding: 3px 10px; border-radius: 4px; font-size: .72rem; font-weight: 700;
-    letter-spacing: .04em;
-  }
+  .chip { padding: 3px 10px; border-radius: 4px; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
   .chip-COR  { background:#dbeafe; color:#1e40af; }
   .chip-BOR  { background:#dcfce7; color:#166534; }
   .chip-XBOR { background:#d1fae5; color:#065f46; }
@@ -189,8 +130,9 @@
   .chip-MAR  { background:#fce7f3; color:#9d174d; }
   .chip-XMAR { background:#fce7f3; color:#831843; }
   .chip-EXP  { background:#e0f2fe; color:#0c4a6e; }
-
   .arrow { color: #94a3b8; font-size: .8rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .72rem; font-weight: 600; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
 </style>
 </head>
 <body>
@@ -206,16 +148,12 @@
 </div>
 
 <main>
-
-  <!-- ══ PAINEL UPLOAD ══ -->
   <div class="panel active" id="panel-upload">
-
     <div class="card">
       <h2>Upload do arquivo Dinabox</h2>
       <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
         </svg>
         <p>Arraste um arquivo aqui ou <strong>clique para selecionar</strong></p>
         <p style="margin-top:6px">CSV · XLS · XLSX exportado pelo Dinabox</p>
@@ -232,14 +170,10 @@
       <div class="alert alert-ok"  id="alert-ok"></div>
 
       <div style="margin-top:18px; display:flex; gap:10px; align-items:center;">
-        <button class="btn btn-primary" id="btn-processar" onclick="processar()" disabled>
-          ▶ Gerar Roteiro
-        </button>
-        <span id="pid-badge"></span>
+        <button class="btn btn-primary" id="btn-processar" onclick="processar()" disabled>▶ Gerar Roteiro</button>
       </div>
     </div>
 
-    <!-- Resultado -->
     <div id="resultado">
       <div class="card">
         <h2>Resultado</h2>
@@ -260,6 +194,7 @@
               <tr>
                 <th>Descrição da Peça</th>
                 <th>Local</th>
+                <th>OBS</th>
                 <th>Roteiro</th>
               </tr>
             </thead>
@@ -270,11 +205,10 @@
     </div>
   </div>
 
-  <!-- ══ PAINEL HISTÓRICO ══ -->
   <div class="panel" id="panel-historico">
     <div class="card">
       <h2>Pedidos processados</h2>
-      <table class="hist-table" id="hist-table">
+      <table id="hist-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -284,25 +218,19 @@
             <th>Ações</th>
           </tr>
         </thead>
-        <tbody id="hist-tbody">
-          <tr><td colspan="5" class="hist-empty">Carregando…</td></tr>
-        </tbody>
+        <tbody id="hist-tbody"></tbody>
       </table>
     </div>
   </div>
-
 </main>
 
 <script>
-// ── Clock ──
 function tick() {
   const d = new Date();
-  document.getElementById('clock').textContent =
-    d.toLocaleDateString('pt-BR') + '  ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('clock').textContent = d.toLocaleDateString('pt-BR') + '  ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 }
 tick(); setInterval(tick, 10000);
 
-// ── Tabs ──
 function showTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -311,121 +239,60 @@ function showTab(name) {
   if (name === 'historico') carregarHistorico();
 }
 
-// ── Upload ──
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('file-input');
 let arquivoAtual = null;
 let pidAtual = null;
 
-['dragenter','dragover'].forEach(e => dropArea.addEventListener(e, ev => {
-  ev.preventDefault(); dropArea.classList.add('over');
-}));
-['dragleave','drop'].forEach(e => dropArea.addEventListener(e, ev => {
-  ev.preventDefault(); dropArea.classList.remove('over');
-}));
-dropArea.addEventListener('drop', ev => {
-  const f = ev.dataTransfer.files[0];
-  if (f) setFile(f);
-});
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) setFile(fileInput.files[0]);
-});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
 
 function setFile(f) {
   arquivoAtual = f;
   document.getElementById('file-name').textContent = '📄 ' + f.name;
   document.getElementById('btn-processar').disabled = false;
-  esconderResultado();
-  clearAlerts();
-}
-
-function clearAlerts() {
-  ['alert-err','alert-ok'].forEach(id => {
-    const el = document.getElementById(id);
-    el.style.display = 'none'; el.textContent = '';
-  });
-}
-
-function showErr(msg) {
-  const el = document.getElementById('alert-err');
-  el.textContent = '⚠ ' + msg; el.style.display = 'block';
-}
-
-function showOk(msg) {
-  const el = document.getElementById('alert-ok');
-  el.textContent = '✓ ' + msg; el.style.display = 'block';
-}
-
-function esconderResultado() {
   document.getElementById('resultado').style.display = 'none';
+  document.getElementById('alert-err').style.display = 'none';
+  document.getElementById('alert-ok').style.display = 'none';
 }
 
-// ── Processar ──
 async function processar() {
   if (!arquivoAtual) return;
-  clearAlerts();
-  esconderResultado();
-
-  // Progress
-  const pw = document.getElementById('progress-wrap');
-  const pf = document.getElementById('progress-fill');
-  const pl = document.getElementById('progress-label');
-  pw.style.display = 'block';
-  pf.style.width = '30%';
-  pl.textContent = 'Enviando arquivo…';
+  const fd = new FormData(); fd.append('arquivo', arquivoAtual);
+  
+  document.getElementById('progress-wrap').style.display = 'block';
   document.getElementById('btn-processar').disabled = true;
 
-  const fd = new FormData();
-  fd.append('arquivo', arquivoAtual);
-
   try {
-    pf.style.width = '60%'; pl.textContent = 'Calculando roteiros…';
     const res = await fetch('/processar', { method: 'POST', body: fd });
     const data = await res.json();
-    pf.style.width = '100%';
+    
+    if (!res.ok) throw new Error(data.erro || 'Erro no servidor');
 
-    if (!res.ok) {
-      pw.style.display = 'none';
-      showErr(data.erro || 'Erro desconhecido.');
-      document.getElementById('btn-processar').disabled = false;
-      return;
-    }
-
-    pw.style.display = 'none';
     pidAtual = data.pid;
     mostrarResultado(data);
-    showOk(`${data.total} peças processadas com sucesso.`);
+    document.getElementById('alert-ok').textContent = `✓ ${data.total} peças processadas.`;
+    document.getElementById('alert-ok').style.display = 'block';
   } catch(e) {
-    pw.style.display = 'none';
-    showErr('Falha na comunicação com o servidor.');
+    document.getElementById('alert-err').textContent = '⚠ ' + e.message;
+    document.getElementById('alert-err').style.display = 'block';
+  } finally {
+    document.getElementById('progress-wrap').style.display = 'none';
+    document.getElementById('btn-processar').disabled = false;
   }
-  document.getElementById('btn-processar').disabled = false;
 }
 
-// ── Mostrar resultado ──
-const CHIP_COLORS = ['COR','BOR','XBOR','DUP','USI','FUR','CAX','MAR','XMAR','EXP'];
-
 function renderRota(rota) {
-  return rota.split(' > ').map((s,i,arr) =>
-    `<span class="chip chip-${s}">${s}</span>` +
-    (i < arr.length-1 ? '<span class="arrow">›</span>' : '')
-  ).join(' ');
+  return rota.split(' > ').map((s,i,arr) => `<span class="chip chip-${s}">${s}</span>` + (i < arr.length-1 ? '<span class="arrow">›</span>' : '')).join(' ');
 }
 
 function mostrarResultado(data) {
-  // Stats
-  const rotas = data.resumo.length;
   document.getElementById('stats').innerHTML = `
     <div class="stat-box"><div class="num">${data.total}</div><div class="lbl">Total de peças</div></div>
-    <div class="stat-box"><div class="num">${rotas}</div><div class="lbl">Tipos de roteiro</div></div>
+    <div class="stat-box"><div class="num">${data.resumo.length}</div><div class="lbl">Tipos de roteiro</div></div>
   `;
 
-  // Download
-  document.getElementById('btn-download').onclick = () => {
-    window.location.href = `/download/${pidAtual}`;
-  };
+  document.getElementById('btn-download').onclick = () => window.location.href = `/download/${pidAtual}`;
 
-  // Resumo roteiros
   const maxQtd = Math.max(...data.resumo.map(r => r.qtd));
   document.getElementById('roteiro-list').innerHTML = data.resumo.map(r => `
     <div class="roteiro-row">
@@ -435,11 +302,11 @@ function mostrarResultado(data) {
     </div>
   `).join('');
 
-  // Prévia
   document.getElementById('previa-tbody').innerHTML = data.previa.map(p => `
     <tr>
       <td>${p['DESCRIÇÃO DA PEÇA'] || ''}</td>
       <td><span class="badge badge-blue">${p['LOCAL'] || ''}</span></td>
+      <td style="color:var(--muted); font-style:italic">${p['OBS'] || ''}</td>
       <td class="rota-cell">${p['ROTEIRO'] || ''}</td>
     </tr>
   `).join('');
@@ -447,38 +314,18 @@ function mostrarResultado(data) {
   document.getElementById('resultado').style.display = 'block';
 }
 
-// ── Histórico ──
 async function carregarHistorico() {
-  const tbody = document.getElementById('hist-tbody');
-  tbody.innerHTML = '<tr><td colspan="5" class="hist-empty">Carregando…</td></tr>';
-  try {
-    const res  = await fetch('/historico');
-    const rows = await res.json();
-    if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="hist-empty">Nenhum pedido processado ainda.</td></tr>';
-      return;
-    }
-    tbody.innerHTML = rows.map(r => `
-      <tr>
-        <td><code style="font-size:.78rem;color:var(--muted)">${r.id}</code></td>
-        <td>${r.nome}</td>
-        <td>${r.data}</td>
-        <td><span class="badge badge-blue">${r.total_pecas} peças</span></td>
-        <td style="display:flex;gap:6px">
-          <a href="/download/${r.id}" class="btn btn-success btn-sm">⬇ XLSX</a>
-          <button class="btn btn-danger btn-sm" onclick="deletar('${r.id}')">✕</button>
-        </td>
-      </tr>
-    `).join('');
-  } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="5" class="hist-empty">Erro ao carregar histórico.</td></tr>';
-  }
-}
-
-async function deletar(pid) {
-  if (!confirm('Remover este registro do histórico?')) return;
-  await fetch('/historico/' + pid, { method: 'DELETE' });
-  carregarHistorico();
+  const res = await fetch('/historico');
+  const rows = await res.json();
+  document.getElementById('hist-tbody').innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.nome}</td>
+      <td>${r.data}</td>
+      <td>${r.total_pecas}</td>
+      <td><a href="/download/${r.id}">⬇</a></td>
+    </tr>
+  `).join('');
 }
 </script>
 </body>
