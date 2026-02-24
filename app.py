@@ -3,9 +3,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify, send_file, render_template, g
 import pandas as pd
 from io import StringIO, BytesIO
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+import xlwt
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
@@ -125,82 +123,70 @@ LARGURAS = {
     'FURO': 7, 'DUPLAGEM': 16, 'ROTEIRO': 42
 }
 
-def gerar_xlsx(df):
-    # detecta automaticamente template novo ou antigo
+def gerar_xls(df):
+    """Gera arquivo .xls (BIFF) compatível com software legado."""
+    # detecta colunas disponíveis
     cols = COLUNAS_EXIB if 'DESCRICAO DA PECA' in df.columns else COLUNAS_EXIB_V1
 
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Roteiro de Peças"
-    thin = Side(style='thin', color='CCCCCC')
-    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Roteiro de Pecas')
+
+    # Estilos
+    style_header = xlwt.easyxf(
+        'font: bold true, colour white, height 200;'
+        'pattern: pattern solid, fore_colour dark_blue;'
+        'alignment: horiz centre, vert centre, wrap true;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    style_header_rot = xlwt.easyxf(
+        'font: bold true, colour white, height 200;'
+        'pattern: pattern solid, fore_colour dark_yellow;'
+        'alignment: horiz centre, vert centre, wrap true;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    style_data = xlwt.easyxf(
+        'font: height 180;'
+        'alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    style_data_alt = xlwt.easyxf(
+        'font: height 180;'
+        'pattern: pattern solid, fore_colour ice_blue;'
+        'alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    style_rot = xlwt.easyxf(
+        'font: bold true, height 180;'
+        'pattern: pattern solid, fore_colour light_yellow;'
+        'alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+
+    # Larguras (em unidades xlwt: caracteres * 256)
+    larguras_xls = {c: LARGURAS.get(c, 14) * 256 for c in cols}
 
     # Cabeçalho
-    for ci, col in enumerate(cols, 1):
-        c = ws.cell(row=1, column=ci, value=col)
-        c.fill  = PatternFill("solid", start_color=COR_ROT_HD if col == 'ROTEIRO' else COR_HEADER)
-        c.font  = Font(name='Arial', bold=True, color='FFFFFF', size=10)
-        c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-        c.border = border
-    ws.row_dimensions[1].height = 35
+    ws.row(0).height_mismatch = True
+    ws.row(0).height = 600
+    for ci, col in enumerate(cols):
+        st = style_header_rot if col == 'ROTEIRO' else style_header
+        ws.write(0, ci, col, st)
+        ws.col(ci).width = larguras_xls.get(col, 14 * 256)
 
-    # Linhas
-    for ri, (_, row) in enumerate(df.iterrows(), 2):
-        bg = COR_ALT if ri % 2 == 0 else 'FFFFFF'
-        for ci, col in enumerate(cols, 1):
+    # Dados
+    for ri, (_, row) in enumerate(df.iterrows(), 1):
+        st_base = style_data_alt if ri % 2 == 0 else style_data
+        for ci, col in enumerate(cols):
             val = str(row.get(col, '')).strip()
             val = '' if val in ('nan', 'NaN') else val
-            c = ws.cell(row=ri, column=ci, value=val)
-            c.border = border
-            c.alignment = Alignment(horizontal='center', vertical='center')
-            if col == 'ROTEIRO':
-                c.fill = PatternFill("solid", start_color=COR_ROT_BG)
-                c.font = Font(name='Arial', size=9, bold=True)
-            else:
-                c.fill = PatternFill("solid", start_color=bg)
-                c.font = Font(name='Arial', size=9)
-
-    for ci, col in enumerate(cols, 1):
-        ws.column_dimensions[get_column_letter(ci)].width = LARGURAS.get(col, 14)
-
-    ws.freeze_panes = 'A2'
-    ws.auto_filter.ref = f"A1:{get_column_letter(len(cols))}1"
-
-    # Aba legenda
-    wl = wb.create_sheet("Legenda")
-    legenda = [
-        ("SETOR", "NOME", "CRITÉRIO"),
-        ("COR",  "Corte",               "Toda peça"),
-        ("BOR",  "Bordo automático",    "Tem borda, sem 'Perfil db'"),
-        ("XBOR", "Bordo manual",        "Tem borda + 'Perfil db' na descrição"),
-        ("DUP",  "Duplagem",            "Coluna DUPLAGEM preenchida"),
-        ("USI",  "Usinagem",            "Coluna FURO preenchida"),
-        ("FUR",  "Furação",             "Coluna FURO preenchida"),
-        ("CAX",  "Caixas",              "LOCAL = Caixa ou Gaveta"),
-        ("MAR",  "Marcenaria",          "LOCAL = Porta (sem Perfil db) ou Tamponamento"),
-        ("XMAR", "Marcenaria especial", "LOCAL = Porta com 'Perfil db'"),
-        ("EXP",  "Expedição",           "Toda peça"),
-    ]
-    wl.column_dimensions['A'].width = 10
-    wl.column_dimensions['B'].width = 24
-    wl.column_dimensions['C'].width = 42
-    for ri, row in enumerate(legenda, 1):
-        for ci, val in enumerate(row, 1):
-            c = wl.cell(row=ri, column=ci, value=val)
-            c.border = border
-            c.alignment = Alignment(horizontal='left', vertical='center')
-            if ri == 1:
-                c.fill = PatternFill("solid", start_color=COR_HEADER)
-                c.font = Font(name='Arial', bold=True, color='FFFFFF', size=10)
-            else:
-                c.fill = PatternFill("solid", start_color=COR_ALT if ri % 2 == 0 else 'FFFFFF')
-                c.font = Font(name='Arial', size=10)
-        wl.row_dimensions[ri].height = 20
+            st = style_rot if col == 'ROTEIRO' else st_base
+            ws.write(ri, ci, val, st)
 
     buf = BytesIO()
     wb.save(buf)
     buf.seek(0)
     return buf
+
 
 # ─── PROCESSAMENTO DO ARQUIVO ────────────────────────────────────────────────
 def processar_arquivo(file):
@@ -326,9 +312,9 @@ def processar():
 
     # Salva XLSX
     pid     = str(uuid.uuid4())[:8]
-    nome_arq = f"{pid}_{file.filename.rsplit('.', 1)[0]}.xlsx"
+    nome_arq = f"{pid}_{file.filename.rsplit('.', 1)[0]}.xls"
     caminho = os.path.join(OUTPUTS_DIR, nome_arq)
-    xlsx_buf = gerar_xlsx(df)
+    xlsx_buf = gerar_xls(df)
     with open(caminho, 'wb') as f:
         f.write(xlsx_buf.read())
 
@@ -355,7 +341,7 @@ def download(pid):
         return 'Não encontrado', 404
     caminho = os.path.join(OUTPUTS_DIR, row['arquivo_out'])
     return send_file(caminho, as_attachment=True,
-                     download_name=f"ROTEIRO_{row['nome']}.xlsx")
+                     download_name=f"ROTEIRO_{row['nome']}.xls")
 
 @app.route('/historico')
 def historico():
