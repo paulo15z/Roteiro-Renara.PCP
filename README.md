@@ -40,3 +40,7 @@ Ctrl+Shift+P → "Python: Select Interpreter" → escolha o que contém "venv"
 Só mude a última linha do app.py:
   debug=True  →  debug=False
   host='127.0.0.1'  →  host='0.0.0.0'
+
+
+## Realease
+Em produção 24/02/26 - 15:38 
