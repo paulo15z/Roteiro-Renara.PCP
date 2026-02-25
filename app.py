@@ -38,28 +38,83 @@ def init_db():
 BORDA_COLS = ['BORDA_FACE_FRENTE', 'BORDA_FACE_TRASEIRA', 'BORDA_FACE_LE', 'BORDA_FACE_LD']
 
 def calcular_roteiro(row):
-    local    = str(row.get('LOCAL', '')).strip()
-    desc     = str(row.get('DESCRIÇÃO DA PEÇA', '')).strip().lower()
-    duplagem = str(row.get('DUPLAGEM', '')).strip().lower()
-    furo     = str(row.get('FURO', '')).strip()
-    tem_borda = any(str(row.get(c, '')).strip() not in ('', 'nan') for c in BORDA_COLS)
-    eh_perfil = 'perfil db' in desc
-
-    rota = ['COR']
+    """
+    Organiza o fluxo de cada peça pelos setores da marcenaria:
+    COR → BOR → USI/FUR → DUP → MCX → MPE → MAR → PIN/TAP/LED → CQL → EXP
+        - COR [...] - CQL - EXP são obrigatórios para todas as peças!!
+    Serviços especiais detectados por tags na coluna OBSERVAÇÃO: #pin, #tap, #led [verificar implantação no dinabox]
+    """
+    
+    # Extração e normalização de dados
+    local      = str(row.get('LOCAL', '')).strip().lower()
+    desc       = str(row.get('DESCRIÇÃO DA PEÇA', '')).strip().lower()
+    duplagem   = str(row.get('DUPLAGEM', '')).strip().lower()
+    furo       = str(row.get('FURO', '')).strip().lower()
+    obs        = str(row.get('OBSERVAÇÃO', '')).strip().lower()
+    
+    # Detectar características
+    tem_borda    = any(str(row.get(c, '')).strip() not in ('', 'nan') for c in BORDA_COLS)
+    eh_perfil    = 'perfil db' in desc
+    tem_furo     = furo not in ('', 'nan', 'none')
+    tem_duplagem = duplagem not in ('', 'nan', 'none')
+    
+    # Detectar tipo de peça
+    tem_puxador  = 'puxador' in desc or 'tampa' in desc
+    eh_porta     = 'porta' in local or 'porta' in desc
+    eh_gaveta    = 'gaveta' in desc or 'gaveteiro' in desc or 'gaveta' in local
+    eh_caixa     = 'caixa' in local
+    eh_frontal   = 'frontal' in local or 'frontal' in desc
+    eh_tamponamento = 'tamponamento' in local
+    
+    # Detectar serviços especiais por OBS - apenas tags específicas
+    # Procura por tags: #pin, #tap, #led [ implantando mudanças no dinabox ]
+    tem_pintura  = '#pin' in obs
+    tem_tapecar  = '#tap' in obs
+    tem_eletrica = '#led' in obs
+    
+    rota = ['COR']  # Todas as peças começam no corte
+    
+    # ─── ETAPA 1: BORDA ───────────────────────────────────────────────────────
     if tem_borda:
-        rota.append('XBOR' if eh_perfil else 'BOR')
-    if duplagem and duplagem not in ('nan', 'none'):
-        rota.append('DUP')
-    if furo and furo not in ('nan', 'none'):
+        rota.append('BOR')
+    
+    # ─── ETAPA 2: USINAGEM E FURAÇÃO ──────────────────────────────────────────
+    if tem_furo:
         rota.append('USI')
         rota.append('FUR')
-    if local in ('Caixa', 'Gaveta'):
-        rota.append('CAX')
-    elif local == 'Porta':
-        rota.append('XMAR' if eh_perfil else 'MAR')
-    elif local == 'Tamponamento':
+    
+    # ─── ETAPA 3: DUPLAGEM ────────────────────────────────────────────────────
+    if tem_duplagem:
+        rota.append('DUP')
+    
+    # ─── ETAPA 4: MONTAGEM - Gavetas/Caixas ───────────────────────────────────
+    if eh_gaveta or eh_caixa:
+        rota.append('MCX')
+    
+    # ─── ETAPA 5: MONTAGEM - Portas/Frontais ──────────────────────────────────
+    elif tem_puxador or eh_porta or eh_frontal:
+        rota.append('MPE')
+        rota.append('MAR')  # Após MPE, vai para marceneiro revisar e encaixar porta
+    
+    # ─── ETAPA 6: MARCENARIA - Tamponamentos e itens especiais ────────────────
+    # Tamponamentos que NÃO são gavetas (como contra-frente, lateral, arremate)
+    elif eh_tamponamento and not eh_gaveta:
         rota.append('MAR')
+    
+    # ─── ETAPA 7: SERVIÇOS ESPECIAIS ──────────────────────────────────────────
+    if tem_pintura:
+        rota.append('PIN')
+    if tem_tapecar:
+        rota.append('TAP')
+    if tem_eletrica:
+        rota.append('MEL')
+    
+    # ─── ETAPA 8: CONTROLE DE QUALIDADE (OBRIGATÓRIO) ────────────────────────
+    rota.append('CQL')
+    
+    # ─── ETAPA 9: EXPEDIÇÃO (OBRIGATÓRIO) ──────────────────────────────────────
     rota.append('EXP')
+    
     return ' > '.join(rota)
 
 # ─── GERAÇÃO DO XLS ───────────────────────────────────────────────────────────
@@ -168,6 +223,11 @@ def processar_arquivo(file):
 
     # Adiciona ROTEIRO — mantém tudo mais na ordem original do Dinabox
     df['ROTEIRO'] = df.apply(calcular_roteiro, axis=1)
+    
+    # Remove tags de serviços especiais da coluna OBSERVAÇÃO para limpeza da etiqueta
+    if 'OBSERVAÇÃO' in df.columns:
+        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *#(pin|tap|led) *', ' ', case=False, regex=True).str.strip()
+    
     return df
 
 # ─── ROTAS ────────────────────────────────────────────────────────────────────
