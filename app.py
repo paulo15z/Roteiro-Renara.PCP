@@ -50,7 +50,7 @@ def calcular_roteiro(row):
     desc       = str(row.get('DESCRIÇÃO DA PEÇA', '')).strip().lower()
     duplagem   = str(row.get('DUPLAGEM', '')).strip().lower()
     furo       = str(row.get('FURO', '')).strip().lower()
-    obs        = str(row.get('OBSERVAÇÃO', '')).strip().lower()
+    obs        = (str(row.get('OBSERVAÇÃO', '')) + ' ' + str(row.get('OBS', ''))).strip().lower()
     
     # Detectar características
     tem_borda    = any(str(row.get(c, '')).strip() not in ('', 'nan') for c in BORDA_COLS)
@@ -224,9 +224,11 @@ def processar_arquivo(file):
     # Adiciona ROTEIRO — mantém tudo mais na ordem original do Dinabox
     df['ROTEIRO'] = df.apply(calcular_roteiro, axis=1)
     
-    # Remove tags de serviços especiais da coluna OBSERVAÇÃO para limpeza da etiqueta
+    # Remove tags de serviços especiais das colunas OBSERVAÇÃO e OBS para limpeza da etiqueta
     if 'OBSERVAÇÃO' in df.columns:
         df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *_(pin|tap|led)_ *', ' ', case=False, regex=True).str.strip()
+    if 'OBS' in df.columns:
+        df['OBS'] = df['OBS'].str.replace(r' *_(pin|tap|led)_ *', ' ', case=False, regex=True).str.strip()
     
     return df
 
