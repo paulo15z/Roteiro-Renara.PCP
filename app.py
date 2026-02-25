@@ -13,6 +13,7 @@ DB_PATH     = os.path.join(DATA_DIR, 'historico.db')
 OUTPUTS_DIR = os.path.join(DATA_DIR, 'outputs')
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
 
+# ─── BANCO DE DADOS ───────────────────────────────────────────────────────────
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(DB_PATH)
@@ -28,157 +29,148 @@ def init_db():
     with app.app_context():
         db = get_db()
         db.execute('''CREATE TABLE IF NOT EXISTS pedidos (
-            id TEXT PRIMARY KEY, nome TEXT, data TEXT, total_pecas INTEGER, arquivo_out TEXT)''')
+            id TEXT PRIMARY KEY, nome TEXT, data TEXT,
+            total_pecas INTEGER, arquivo_out TEXT)''')
         db.commit()
 
-def normalizar_coluna(nome):
-    import unicodedata
-    nfkd = unicodedata.normalize('NFKD', nome)
-    sem_acento = ''.join(c for c in nfkd if not unicodedata.combining(c))
-    return sem_acento.upper().strip()
-
-# Mapeamento: nome normalizado -> nome padrão interno
-MAPA_NORMALIZACAO = {
-    'NOME DO CLIENTE':        'NOME DO CLIENTE',
-    'ID DO PROJETO':          'ID DO PROJETO',
-    'NOME DO PROJETO':        'NOME DO PROJETO',
-    'REFERENCIA DA PECA':     'REFERENCIA DA PECA',
-    'DESCRICAO MODULO':       'DESCRICAO MODULO',
-    'QUANTIDADE':             'QUANTIDADE',
-    'LARGURA DA PECA':        'LARGURA',
-    'LARGURA':                'LARGURA',
-    'ALTURA DA PECA':         'ALTURA',
-    'ALTURA':                 'ALTURA',
-    'METRO QUADRADO':         'METRO QUADRADO',
-    'ESPESSURA':              'ESPESSURA',
-    'CODIGO DO MATERIAL':     'CODIGO DO MATERIAL',
-    'MATERIAL DA PECA':       'MATERIAL',
-    'MATERIAL':               'MATERIAL',
-    'VEIO':                   'VEIO',
-    'BORDA_FACE_FRENTE':      'BORDA_FRENTE',
-    'BORDA_FRENTE':           'BORDA_FRENTE',
-    'BORDA_FACE_TRASEIRA':    'BORDA_TRASEIRA',
-    'BORDA_TRASEIRA':         'BORDA_TRASEIRA',
-    'BORDA_FACE_LE':          'BORDA_LE',
-    'BORDA_LE':               'BORDA_LE',
-    'BORDA_FACE_LD':          'BORDA_LD',
-    'BORDA_LD':               'BORDA_LD',
-    'LOTE':                   'LOTE',
-    'OBSERVACAO':             'OBSERVACAO',
-    'DESCRICAO DA PECA':      'DESCRICAO DA PECA',
-    'ID DA PECA':             'ID DA PECA',
-    'LOCAL':                  'LOCAL',
-    'DUPLAGEM':               'DUPLAGEM',
-    'FURO':                   'FURO',
-    'OBS':                    'OBS',
-}
+# ─── LÓGICA DE ROTEIRO ────────────────────────────────────────────────────────
+# Colunas de borda — nomes exatos do Dinabox
+BORDA_COLS = ['BORDA_FACE_FRENTE', 'BORDA_FACE_TRASEIRA', 'BORDA_FACE_LE', 'BORDA_FACE_LD']
 
 def calcular_roteiro(row):
     local    = str(row.get('LOCAL', '')).strip()
-    desc     = str(row.get('DESCRICAO DA PECA', '')).strip().lower()
+    desc     = str(row.get('DESCRIÇÃO DA PEÇA', '')).strip().lower()
     duplagem = str(row.get('DUPLAGEM', '')).strip().lower()
     furo     = str(row.get('FURO', '')).strip()
-
-    b_cols = ['BORDA_FRENTE', 'BORDA_TRASEIRA', 'BORDA_LE', 'BORDA_LD']
-    tem_borda = any(str(row.get(c, '')).strip() not in ('', 'nan', 'None') for c in b_cols)
-
+    tem_borda = any(str(row.get(c, '')).strip() not in ('', 'nan') for c in BORDA_COLS)
     eh_perfil = 'perfil db' in desc
 
     rota = ['COR']
     if tem_borda:
         rota.append('XBOR' if eh_perfil else 'BOR')
-    if duplagem and duplagem not in ('nan', 'none', ''):
+    if duplagem and duplagem not in ('nan', 'none'):
         rota.append('DUP')
-    if furo and furo not in ('nan', 'none', ''):
+    if furo and furo not in ('nan', 'none'):
         rota.append('USI')
         rota.append('FUR')
-
     if local in ('Caixa', 'Gaveta'):
         rota.append('CAX')
     elif local == 'Porta':
         rota.append('XMAR' if eh_perfil else 'MAR')
     elif local == 'Tamponamento':
         rota.append('MAR')
-
     rota.append('EXP')
     return ' > '.join(rota)
 
-COLUNAS_SAIDA = [
-    'ID DO PROJETO', 'NOME DO PROJETO', 'DESCRICAO MODULO', 'DESCRICAO DA PECA',
-    'ID DA PECA', 'QUANTIDADE', 'LARGURA', 'ALTURA', 'ESPESSURA', 'MATERIAL',
-    'LOCAL', 'BORDA_FRENTE', 'BORDA_TRASEIRA', 'BORDA_LE', 'BORDA_LD',
-    'FURO', 'OBS', 'DUPLAGEM', 'ROTEIRO'
-]
-
+# ─── GERAÇÃO DO XLS ───────────────────────────────────────────────────────────
 def gerar_xls(df):
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Roteiro de Pecas')
-    header_style = xlwt.easyxf(
-        'font: bold true, colour white; pattern: pattern solid, fore_colour dark_blue; '
-        'alignment: horiz centre, vert centre; borders: left thin, right thin, top thin, bottom thin;'
-    )
-    data_style = xlwt.easyxf(
-        'font: height 180; alignment: horiz centre, vert centre; '
+
+    st_header = xlwt.easyxf(
+        'font: bold true, colour white, height 200;'
+        'pattern: pattern solid, fore_colour dark_blue;'
+        'alignment: horiz centre, vert centre, wrap true;'
         'borders: left thin, right thin, top thin, bottom thin;'
     )
-    for ci, col in enumerate(COLUNAS_SAIDA):
-        ws.write(0, ci, col, header_style)
-        ws.col(ci).width = 4500
+    st_header_rot = xlwt.easyxf(
+        'font: bold true, colour white, height 200;'
+        'pattern: pattern solid, fore_colour dark_yellow;'
+        'alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    st_data = xlwt.easyxf(
+        'font: height 180; alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    st_data_alt = xlwt.easyxf(
+        'font: height 180; pattern: pattern solid, fore_colour ice_blue;'
+        'alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+    st_rot = xlwt.easyxf(
+        'font: bold true, height 180;'
+        'pattern: pattern solid, fore_colour light_yellow;'
+        'alignment: horiz centre, vert centre;'
+        'borders: left thin, right thin, top thin, bottom thin;'
+    )
+
+    cols = list(df.columns)
+    ws.row(0).height_mismatch = True
+    ws.row(0).height = 600
+
+    for ci, col in enumerate(cols):
+        st = st_header_rot if col == 'ROTEIRO' else st_header
+        ws.write(0, ci, col, st)
+        ws.col(ci).width = 5000 if col == 'ROTEIRO' else 3800
+
     for ri, (_, row) in enumerate(df.iterrows(), 1):
-        for ci, col in enumerate(COLUNAS_SAIDA):
-            val = str(row.get(col, '')).replace('nan', '')
-            ws.write(ri, ci, val, data_style)
+        st_base = st_data_alt if ri % 2 == 0 else st_data
+        for ci, col in enumerate(cols):
+            val = str(row.get(col, '')).replace('nan', '').strip()
+            ws.write(ri, ci, val, st_rot if col == 'ROTEIRO' else st_base)
+
     buf = BytesIO()
     wb.save(buf)
     buf.seek(0)
     return buf
 
+# ─── PROCESSAMENTO ────────────────────────────────────────────────────────────
 def processar_arquivo(file):
-    nome = file.filename
-    ext = nome.rsplit('.', 1)[-1].lower()
+    ext = file.filename.rsplit('.', 1)[-1].lower()
 
     if ext == 'csv':
         raw = file.read()
-        try:
-            text = raw.decode('utf-8')
-        except UnicodeDecodeError:
-            text = raw.decode('latin-1')
+        text = None
+        for enc in ('utf-8-sig', 'utf-8', 'cp1252', 'latin-1'):
+            try: text = raw.decode(enc); break
+            except: continue
+        if text is None:
+            raise ValueError("Não foi possível decodificar o arquivo.")
 
         linhas = text.splitlines()
         corpo = []
         em_lista = False
         for l in linhas:
-            if '[LISTA]' in l:
-                em_lista = True
-                continue
-            if '[/LISTA]' in l:
-                em_lista = False
-                continue
+            if '[LISTA]' in l:    em_lista = True;  continue
+            if '[/LISTA]' in l:   em_lista = False; continue
             if (em_lista or not l.startswith('[')) and l.strip():
                 corpo.append(l.rstrip(';'))
 
         df = pd.read_csv(StringIO('\n'.join(corpo)), sep=';', dtype=str).fillna('')
+
+    elif ext == 'xlsx':
+        df = pd.read_excel(file, dtype=str, engine='openpyxl').fillna('')
+    elif ext == 'xls':
+        import tempfile, os as _os
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.xls')
+        try:
+            file.save(tmp.name); tmp.close()
+            df = pd.read_excel(tmp.name, dtype=str, engine='xlrd').fillna('')
+        finally:
+            _os.unlink(tmp.name)
     else:
-        df = pd.read_excel(file, dtype=str).fillna('')
+        raise ValueError("Formato não suportado. Use CSV, XLS ou XLSX.")
 
-    # Normaliza nomes de colunas removendo acentos
-    mapa_rename = {}
-    for col_original in df.columns:
-        col_norm = normalizar_coluna(col_original)
-        col_padrao = MAPA_NORMALIZACAO.get(col_norm)
-        if col_padrao:
-            mapa_rename[col_original] = col_padrao
+    # Remove coluna vazia (gerada pelo ; extra do Dinabox)
+    df.columns = [c.strip() for c in df.columns]
+    df = df[[c for c in df.columns if c]]
 
-    df = df.rename(columns=mapa_rename)
+    # Remove linha de rodapé
+    if 'NOME DO CLIENTE' in df.columns:
+        df = df[~df['NOME DO CLIENTE'].str.strip().isin(['RODAPÉ', ''])]
 
+    # Verifica colunas mínimas
+    obrigatorias = ['LOCAL', 'FURO', 'DUPLAGEM', 'DESCRIÇÃO DA PEÇA']
+    faltando = [c for c in obrigatorias if c not in df.columns]
+    if faltando:
+        raise ValueError(f"Colunas não encontradas: {', '.join(faltando)}")
+
+    # Adiciona ROTEIRO — mantém tudo mais na ordem original do Dinabox
     df['ROTEIRO'] = df.apply(calcular_roteiro, axis=1)
-
-    for c in COLUNAS_SAIDA:
-        if c not in df.columns:
-            df[c] = ''
-
     return df
 
+# ─── ROTAS ────────────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -191,32 +183,30 @@ def processar():
         file = request.files['arquivo']
         df = processar_arquivo(file)
 
-        previa_lista = []
-        for _, r in df.head(50).iterrows():
-            previa_lista.append({
-                'DESCRIÇÃO DA PEÇA': r.get('DESCRICAO DA PECA', ''),
-                'LOCAL': r.get('LOCAL', ''),
-                'OBS': r.get('OBS', ''),
-                'ROTEIRO': r.get('ROTEIRO', '')
-            })
-
+        # Inclui OBS na prévia se a coluna existir
+        cols_previa = ['DESCRIÇÃO DA PEÇA', 'LOCAL', 'ROTEIRO']
+        if 'OBS' in df.columns: cols_previa.insert(2, 'OBS')
+        previa = df[cols_previa].head(50).to_dict(orient='records')
         resumo = df['ROTEIRO'].value_counts().reset_index()
         resumo.columns = ['roteiro', 'qtd']
-        resumo_dict = resumo.to_dict(orient='records')
 
         pid = str(uuid.uuid4())[:8]
         nome_saida = f"{pid}_{file.filename.rsplit('.', 1)[0]}.xls"
-
         xls_buf = gerar_xls(df)
         with open(os.path.join(OUTPUTS_DIR, nome_saida), 'wb') as f:
             f.write(xls_buf.read())
 
         db = get_db()
         db.execute('INSERT INTO pedidos VALUES (?,?,?,?,?)',
-                   (pid, file.filename, datetime.now().strftime('%d/%m/%Y %H:%M'), len(df), nome_saida))
+                   (pid, file.filename, datetime.now().strftime('%d/%m/%Y %H:%M'),
+                    len(df), nome_saida))
         db.commit()
 
-        return jsonify({'pid': pid, 'total': len(df), 'previa': previa_lista, 'resumo': resumo_dict})
+        return jsonify({
+            'pid': pid, 'total': len(df),
+            'previa': previa,
+            'resumo': resumo.to_dict(orient='records')
+        })
     except Exception as e:
         import traceback
         return jsonify({'erro': str(e), 'trace': traceback.format_exc()}), 500
@@ -224,8 +214,7 @@ def processar():
 @app.route('/download/<pid>')
 def download(pid):
     row = get_db().execute('SELECT arquivo_out, nome FROM pedidos WHERE id=?', (pid,)).fetchone()
-    if not row:
-        return "404", 404
+    if not row: return "Não encontrado", 404
     return send_file(
         os.path.join(OUTPUTS_DIR, row['arquivo_out']),
         as_attachment=True,
@@ -242,14 +231,15 @@ def deletar(pid):
     db = get_db()
     row = db.execute('SELECT arquivo_out FROM pedidos WHERE id=?', (pid,)).fetchone()
     if row:
-        try:
-            os.remove(os.path.join(OUTPUTS_DIR, row['arquivo_out']))
-        except Exception:
-            pass
+        try: os.remove(os.path.join(OUTPUTS_DIR, row['arquivo_out']))
+        except: pass
         db.execute('DELETE FROM pedidos WHERE id=?', (pid,))
         db.commit()
     return jsonify({'ok': True})
 
 if __name__ == '__main__':
-    init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    with app.app_context():
+        init_db()
+    debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    host  = '127.0.0.1' if debug else '0.0.0.0'
+    app.run(host=host, port=5000, debug=debug)
