@@ -67,10 +67,10 @@ def calcular_roteiro(row):
     eh_tamponamento = 'tamponamento' in local
     
     # Detectar serviços especiais por OBS - apenas tags específicas
-    # Procura por tags: #pin, #tap, #led [ implantando mudanças no dinabox ]
-    tem_pintura  = '#pin' in obs
-    tem_tapecar  = '#tap' in obs
-    tem_eletrica = '#led' in obs
+    # Procura por tags: _pin_, _tap_, _led_ [ implantando mudanças no dinabox ]
+    tem_pintura  = '_pin_' in obs
+    tem_tapecar  = '_tap_' in obs
+    tem_eletrica = '_led_' in obs
     
     rota = ['COR']  # Todas as peças começam no corte
     
@@ -226,7 +226,7 @@ def processar_arquivo(file):
     
     # Remove tags de serviços especiais da coluna OBSERVAÇÃO para limpeza da etiqueta
     if 'OBSERVAÇÃO' in df.columns:
-        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *#(pin|tap|led) *', ' ', case=False, regex=True).str.strip()
+        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *_(pin|tap|led)_ *', ' ', case=False, regex=True).str.strip()
     
     return df
 
