@@ -1,18 +1,18 @@
-# Python
+
 __pycache__/
 *.py[cod]
 *.pyo
 venv/
 .env
 
-# Dados locais (não sobem pro GitHub — ficam só no servidor)
+
 historico.db
 outputs/
 uploads/
 
-# VS Code
+
 .vscode/
 
-# OS
+
 .DS_Store
 Thumbs.db
