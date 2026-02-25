@@ -67,10 +67,11 @@ def calcular_roteiro(row):
     eh_tamponamento = 'tamponamento' in local
     
     # Detectar serviços especiais por OBS - apenas tags específicas
-    # Procura por tags: _pin_, _tap_, _led_ [ implantando mudanças no dinabox ]
+    # Procura por tags: _pin_, _tap_, _led_, _curvo_ [ implantando mudanças no dinabox ]
     tem_pintura  = '_pin_' in obs
     tem_tapecar  = '_tap_' in obs
     tem_eletrica = '_led_' in obs
+    tem_curvo    = '_curvo_' in obs
     
     rota = ['COR']  # Todas as peças começam no corte
     
@@ -108,6 +109,8 @@ def calcular_roteiro(row):
         rota.append('TAP')
     if tem_eletrica:
         rota.append('MEL')
+    if tem_curvo:
+        rota.append('XMAR')
     
     # ─── ETAPA 8: CONTROLE DE QUALIDADE (OBRIGATÓRIO) ────────────────────────
     rota.append('CQL')
@@ -226,9 +229,9 @@ def processar_arquivo(file):
     
     # Remove tags de serviços especiais das colunas OBSERVAÇÃO e OBS para limpeza da etiqueta
     if 'OBSERVAÇÃO' in df.columns:
-        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *_(pin|tap|led)_ *', ' ', case=False, regex=True).str.strip()
+        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *_(pin|tap|led|curvo)_ *', ' ', case=False, regex=True).str.strip()
     if 'OBS' in df.columns:
-        df['OBS'] = df['OBS'].str.replace(r' *_(pin|tap|led)_ *', ' ', case=False, regex=True).str.strip()
+        df['OBS'] = df['OBS'].str.replace(r' *_(pin|tap|led|curvo)_ *', ' ', case=False, regex=True).str.strip()
     
     return df
 
