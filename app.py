@@ -73,6 +73,11 @@ def calcular_roteiro(row):
     tem_eletrica = '_led_' in obs
     tem_curvo    = '_curvo_' in obs
     
+    # Detectar exceções - tags que modificam o fluxo padrão
+    # _painel_ — exceção para peças que foram modeladas como caixas mas são na verdade painéis
+    #           ignora MCX mesmo que seja detectado como caixa
+    eh_painel    = '_painel_' in obs
+    
     rota = ['COR']  # Todas as peças começam no corte
     
     # ─── ETAPA 1: BORDA ───────────────────────────────────────────────────────
@@ -89,7 +94,7 @@ def calcular_roteiro(row):
         rota.append('DUP')
     
     # ─── ETAPA 4: MONTAGEM - Gavetas/Caixas ───────────────────────────────────
-    if eh_gaveta or eh_caixa:
+    if (eh_gaveta or eh_caixa) and not eh_painel:
         rota.append('MCX')
     
     # ─── ETAPA 5: MONTAGEM - Portas/Frontais ──────────────────────────────────
@@ -97,9 +102,10 @@ def calcular_roteiro(row):
         rota.append('MPE')
         rota.append('MAR')  # Após MPE, vai para marceneiro revisar e encaixar porta
     
-    # ─── ETAPA 6: MARCENARIA - Tamponamentos e itens especiais ────────────────
+    # ─── ETAPA 6: MARCENARIA - Tamponamentos, Painéis e itens especiais ─────────
+    # Painéis (revestimento) com exceção _painel_
     # Tamponamentos que NÃO são gavetas (como contra-frente, lateral, arremate)
-    elif eh_tamponamento and not eh_gaveta:
+    if eh_painel or (eh_tamponamento and not eh_gaveta):
         rota.append('MAR')
     
     # ─── ETAPA 7: SERVIÇOS ESPECIAIS ──────────────────────────────────────────
@@ -229,9 +235,9 @@ def processar_arquivo(file):
     
     # Remove tags de serviços especiais das colunas OBSERVAÇÃO e OBS para limpeza da etiqueta
     if 'OBSERVAÇÃO' in df.columns:
-        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *_(pin|tap|led|curvo)_ *', ' ', case=False, regex=True).str.strip()
+        df['OBSERVAÇÃO'] = df['OBSERVAÇÃO'].str.replace(r' *_(pin|tap|led|curvo|painel)_ *', ' ', case=False, regex=True).str.strip()
     if 'OBS' in df.columns:
-        df['OBS'] = df['OBS'].str.replace(r' *_(pin|tap|led|curvo)_ *', ' ', case=False, regex=True).str.strip()
+        df['OBS'] = df['OBS'].str.replace(r' *_(pin|tap|led|curvo|painel)_ *', ' ', case=False, regex=True).str.strip()
     
     return df
 
