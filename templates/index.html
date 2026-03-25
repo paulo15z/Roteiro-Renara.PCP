@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roteiro de Produção · PCP</title>
+<title>Roteiro de Produção · PCP - Tarugo</title>
 <style>
   :root {
     --bg:       #f0f2f5;
@@ -31,15 +31,15 @@
     justify-content: space-between;
     box-shadow: 0 2px 8px rgba(0,0,0,.18);
   }
-  header h1 { font-size: 1rem; font-weight: 600; letter-spacing: .03em; }
-  header span { font-size: .78rem; opacity: .65; }
+  header h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .03em; }
+  header span { font-size: .78rem; opacity: .75; }
 
   .tabs { display: flex; gap: 2px; background: var(--primary); padding: 0 32px; }
   .tab {
-    padding: 10px 20px;
+    padding: 10px 24px;
     font-size: .85rem;
     font-weight: 500;
-    color: rgba(255,255,255,.6);
+    color: rgba(255,255,255,.7);
     cursor: pointer;
     border-bottom: 3px solid transparent;
     transition: .15s;
@@ -48,97 +48,98 @@
   .tab:hover { color: #fff; }
   .tab.active { color: #fff; border-bottom-color: #60a5fa; }
 
-  main { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+  main { max-width: 1180px; margin: 32px auto; padding: 0 24px; }
   .panel { display: none; }
   .panel.active { display: block; }
 
   .card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 24px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
   }
-  .card h2 { font-size: .95rem; font-weight: 600; color: var(--primary); margin-bottom: 16px; }
+  .card h2 { font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 16px; }
 
   .drop-area {
     border: 2px dashed var(--border);
-    border-radius: 8px;
-    padding: 48px 24px;
+    border-radius: 10px;
+    padding: 52px 24px;
     text-align: center;
     cursor: pointer;
     transition: .2s;
   }
   .drop-area:hover, .drop-area.over { border-color: var(--accent); background: #eff6ff; }
-  .drop-area svg { width: 48px; height: 48px; color: var(--muted); margin-bottom: 12px; }
-  .drop-area p { color: var(--muted); font-size: .88rem; }
+  .drop-area svg { width: 52px; height: 52px; color: var(--muted); margin-bottom: 16px; }
+  .drop-area p { color: var(--muted); font-size: .9rem; }
   .drop-area strong { color: var(--accent); }
   #file-input { display: none; }
-  #file-name { margin-top: 10px; font-size: .85rem; color: var(--accent); font-weight: 500; }
+  #file-name { margin-top: 12px; font-size: .87rem; color: var(--accent); font-weight: 500; }
 
   .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 20px; border-radius: 6px; border: none;
-    font-size: .88rem; font-weight: 600; cursor: pointer; transition: .15s;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px; border-radius: 6px; border: none;
+    font-size: .9rem; font-weight: 600; cursor: pointer; transition: .15s;
   }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: #1d4ed8; }
   .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
-  .btn-sm { padding: 5px 12px; font-size: .78rem; font-weight: 500; }
   .btn-success { background: var(--success); color: #fff; }
   .btn-success:hover { background: #15803d; }
-  .btn-danger  { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 
-  #progress-wrap { display: none; margin-top: 16px; }
-  .progress-bar { height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
-  .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .3s; animation: pulse-bar 1.5s ease-in-out infinite; }
-  @keyframes pulse-bar { 0%,100%{opacity:1} 50%{opacity:.6} }
-  #progress-label { font-size: .8rem; color: var(--muted); margin-top: 6px; }
+  #progress-wrap { display: none; margin-top: 20px; }
+  .progress-bar { height: 8px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .4s; }
 
-  .alert { display: none; padding: 12px 16px; border-radius: 6px; font-size: .85rem; margin-top: 16px; border-left: 4px solid; }
+  .alert { display: none; padding: 14px 18px; border-radius: 8px; font-size: .9rem; margin-top: 16px; border-left: 5px solid; }
   .alert-err  { background: #fef2f2; border-color: var(--danger); color: #991b1b; }
   .alert-ok   { background: #f0fdf4; border-color: var(--success); color: #166534; }
 
   #resultado { display: none; }
-  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
-  .stat-box { flex: 1; min-width: 140px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
-  .stat-box .num { font-size: 2rem; font-weight: 700; color: var(--primary); }
-  .stat-box .lbl { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+  .stats { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat-box { flex: 1; min-width: 160px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+  .stat-box .num { font-size: 2.4rem; font-weight: 700; color: var(--primary); }
+  .stat-box .lbl { font-size: .82rem; color: var(--muted); margin-top: 4px; }
 
-  .roteiro-list { display: flex; flex-direction: column; gap: 8px; }
-  .roteiro-row { display: flex; align-items: center; gap: 10px; font-size: .83rem; }
+  .roteiro-list { display: flex; flex-direction: column; gap: 10px; }
+  .roteiro-row { display: flex; align-items: center; gap: 12px; font-size: .85rem; }
   .roteiro-row .rota { font-family: 'Consolas', monospace; color: var(--primary); flex: 1; }
-  .roteiro-row .bar-wrap { flex: 2; height: 8px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
-  .roteiro-row .bar-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .5s; }
-  .roteiro-row .qtd { width: 32px; text-align: right; color: var(--muted); font-weight: 600; }
+  .roteiro-row .bar-wrap { flex: 2; height: 9px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+  .roteiro-row .bar-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+  .roteiro-row .qtd { width: 40px; text-align: right; color: var(--muted); font-weight: 600; }
 
   .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-  thead th { background: var(--primary); color: #fff; padding: 9px 12px; text-align: left; font-weight: 600; white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  thead th { background: var(--primary); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; white-space: nowrap; }
   tbody tr:nth-child(even) { background: var(--bg); }
-  tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); }
-  td.rota-cell { font-family: 'Consolas', monospace; font-size: .78rem; color: var(--primary); font-weight: 600; background: #fffbeb; white-space: nowrap; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+  td.rota-cell { font-family: 'Consolas', monospace; font-size: .8rem; color: var(--primary); font-weight: 600; background: #fffbeb; white-space: nowrap; }
 
-  .chip { padding: 3px 10px; border-radius: 4px; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
+  .chip { padding: 4px 11px; border-radius: 5px; font-size: .76rem; font-weight: 700; letter-spacing: .03em; }
   .chip-COR  { background:#dbeafe; color:#1e40af; }
   .chip-BOR  { background:#dcfce7; color:#166534; }
-  .chip-XBOR { background:#d1fae5; color:#065f46; }
-  .chip-DUP  { background:#fef9c3; color:#854d0e; }
   .chip-USI  { background:#ffedd5; color:#9a3412; }
   .chip-FUR  { background:#fee2e2; color:#991b1b; }
-  .chip-CAX  { background:#f3e8ff; color:#6b21a8; }
+  .chip-DUP  { background:#fef9c3; color:#854d0e; }
+  .chip-MCX  { background:#f3e8ff; color:#6b21a8; }
+  .chip-MPE  { background:#fce7f3; color:#9d174d; }
   .chip-MAR  { background:#fce7f3; color:#9d174d; }
+  .chip-PIN  { background:#fee2e2; color:#991b1b; }
+  .chip-TAP  { background:#fef3c7; color:#854d0e; }
+  .chip-MEL  { background:#e0f2fe; color:#0c4a6e; }
   .chip-XMAR { background:#fce7f3; color:#831843; }
+  .chip-CQL  { background:#ecfdf5; color:#065f46; }
   .chip-EXP  { background:#e0f2fe; color:#0c4a6e; }
-  .arrow { color: #94a3b8; font-size: .8rem; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: .72rem; font-weight: 600; }
-  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .arrow { color: #94a3b8; margin: 0 4px; }
+
+  .no-data { text-align: center; padding: 40px; color: var(--muted); font-style: italic; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>⚙ Roteiro de Produção · PCP</h1>
+  <h1>⚙ Roteiro de Produção · PCP - Tarugo</h1>
   <span id="clock"></span>
 </header>
 
@@ -148,37 +149,38 @@
 </div>
 
 <main>
+  <!-- ==================== ABA UPLOAD ==================== -->
   <div class="panel active" id="panel-upload">
     <div class="card">
-      <h2>Upload do arquivo Dinabox</h2>
+      <h2>Upload do arquivo do Dinabox</h2>
       <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
         </svg>
-        <p>Arraste um arquivo aqui ou <strong>clique para selecionar</strong></p>
-        <p style="margin-top:6px">CSV · XLS · XLSX exportado pelo Dinabox</p>
+        <p>Arraste o arquivo aqui ou <strong>clique para selecionar</strong></p>
+        <p style="margin-top:8px; font-size:0.85rem;">CSV · XLS · XLSX exportado pelo Dinabox</p>
         <div id="file-name"></div>
       </div>
       <input type="file" id="file-input" accept=".csv,.xls,.xlsx">
 
       <div id="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-        <div id="progress-label">Processando…</div>
+        <div id="progress-label">Processando arquivo...</div>
       </div>
 
       <div class="alert alert-err" id="alert-err"></div>
       <div class="alert alert-ok"  id="alert-ok"></div>
 
-      <div style="margin-top:18px; display:flex; gap:10px; align-items:center;">
-        <button class="btn btn-primary" id="btn-processar" onclick="processar()" disabled>▶ Gerar Roteiro</button>
+      <div style="margin-top:20px;">
+        <button class="btn btn-primary" id="btn-processar" onclick="processar()" disabled>▶ Gerar Roteiro de Produção</button>
       </div>
     </div>
 
     <div id="resultado">
       <div class="card">
-        <h2>Resultado</h2>
+        <h2>Resultado do Processamento</h2>
         <div class="stats" id="stats"></div>
-        <button class="btn btn-success" id="btn-download">⬇ Baixar XLS</button>
+        <button class="btn btn-success" id="btn-download">⬇ Baixar arquivo XLS com roteiros</button>
       </div>
 
       <div class="card">
@@ -187,7 +189,7 @@
       </div>
 
       <div class="card">
-        <h2>Prévia das peças <span style="font-weight:400;color:var(--muted);font-size:.8rem">(primeiras 50)</span></h2>
+        <h2>Prévia das peças <span style="font-weight:400;color:var(--muted);font-size:.82rem">(primeiras 50)</span></h2>
         <div class="table-wrap">
           <table>
             <thead>
@@ -205,21 +207,27 @@
     </div>
   </div>
 
+  <!-- ==================== ABA HISTÓRICO ==================== -->
   <div class="panel" id="panel-historico">
     <div class="card">
       <h2>Pedidos processados</h2>
-      <table id="hist-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Arquivo</th>
-            <th>Data</th>
-            <th>Peças</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="hist-tbody"></tbody>
-      </table>
+      <div id="hist-container">
+        <table id="hist-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Arquivo Original</th>
+              <th>Data/Hora</th>
+              <th>Peças</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="hist-tbody"></tbody>
+        </table>
+      </div>
+      <div id="no-historico" class="no-data" style="display:none;">
+        Nenhum arquivo processado ainda.
+      </div>
     </div>
   </div>
 </main>
@@ -227,15 +235,19 @@
 <script>
 function tick() {
   const d = new Date();
-  document.getElementById('clock').textContent = d.toLocaleDateString('pt-BR') + '  ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('clock').textContent = 
+    d.toLocaleDateString('pt-BR') + ' ' + 
+    d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 }
-tick(); setInterval(tick, 10000);
+tick(); setInterval(tick, 30000);
 
 function showTab(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  
   document.getElementById('panel-' + name).classList.add('active');
-  event.target.classList.add('active');
+  document.querySelector(`.tab[onclick="showTab('${name}')"]`).classList.add('active');
+
   if (name === 'historico') carregarHistorico();
 }
 
@@ -244,11 +256,23 @@ const fileInput = document.getElementById('file-input');
 let arquivoAtual = null;
 let pidAtual = null;
 
-fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+['dragover', 'dragenter'].forEach(evt => {
+  dropArea.addEventListener(evt, e => { e.preventDefault(); dropArea.classList.add('over'); });
+});
+['dragleave', 'drop'].forEach(evt => {
+  dropArea.addEventListener(evt, e => { e.preventDefault(); dropArea.classList.remove('over'); });
+});
+dropArea.addEventListener('drop', e => {
+  if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) setFile(fileInput.files[0]);
+});
 
 function setFile(f) {
   arquivoAtual = f;
-  document.getElementById('file-name').textContent = '📄 ' + f.name;
+  document.getElementById('file-name').innerHTML = `📄 ${f.name}`;
   document.getElementById('btn-processar').disabled = false;
   document.getElementById('resultado').style.display = 'none';
   document.getElementById('alert-err').style.display = 'none';
@@ -257,23 +281,27 @@ function setFile(f) {
 
 async function processar() {
   if (!arquivoAtual) return;
-  const fd = new FormData(); fd.append('arquivo', arquivoAtual);
-  
+
+  const fd = new FormData();
+  fd.append('arquivo', arquivoAtual);
+
   document.getElementById('progress-wrap').style.display = 'block';
   document.getElementById('btn-processar').disabled = true;
+  document.getElementById('alert-err').style.display = 'none';
 
   try {
     const res = await fetch('/processar', { method: 'POST', body: fd });
     const data = await res.json();
-    
-    if (!res.ok) throw new Error(data.erro || 'Erro no servidor');
+
+    if (!res.ok) throw new Error(data.erro || 'Erro desconhecido no servidor');
 
     pidAtual = data.pid;
     mostrarResultado(data);
-    document.getElementById('alert-ok').textContent = `✓ ${data.total} peças processadas.`;
+
+    document.getElementById('alert-ok').textContent = `✓ Processado com sucesso — ${data.total} peças`;
     document.getElementById('alert-ok').style.display = 'block';
-  } catch(e) {
-    document.getElementById('alert-err').textContent = '⚠ ' + e.message;
+  } catch (e) {
+    document.getElementById('alert-err').textContent = `⚠ ${e.message}`;
     document.getElementById('alert-err').style.display = 'block';
   } finally {
     document.getElementById('progress-wrap').style.display = 'none';
@@ -282,22 +310,26 @@ async function processar() {
 }
 
 function renderRota(rota) {
-  return rota.split(' > ').map((s,i,arr) => `<span class="chip chip-${s}">${s}</span>` + (i < arr.length-1 ? '<span class="arrow">›</span>' : '')).join(' ');
+  return rota.split(' > ').map(s => 
+    `<span class="chip chip-${s.trim()}">${s.trim()}</span>`
+  ).join('<span class="arrow">›</span>');
 }
 
 function mostrarResultado(data) {
   document.getElementById('stats').innerHTML = `
     <div class="stat-box"><div class="num">${data.total}</div><div class="lbl">Total de peças</div></div>
-    <div class="stat-box"><div class="num">${data.resumo.length}</div><div class="lbl">Tipos de roteiro</div></div>
+    <div class="stat-box"><div class="num">${data.resumo.length}</div><div class="lbl">Tipos de roteiro distintos</div></div>
   `;
 
-  document.getElementById('btn-download').onclick = () => window.location.href = `/download/${pidAtual}`;
+  document.getElementById('btn-download').onclick = () => {
+    window.location.href = `/download/${pidAtual}`;
+  };
 
-  const maxQtd = Math.max(...data.resumo.map(r => r.qtd));
+  const maxQtd = Math.max(...data.resumo.map(r => r.qtd), 1);
   document.getElementById('roteiro-list').innerHTML = data.resumo.map(r => `
     <div class="roteiro-row">
       <div class="rota">${renderRota(r.roteiro)}</div>
-      <div class="bar-wrap"><div class="bar-fill" style="width:${(r.qtd/maxQtd*100).toFixed(1)}%"></div></div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${(r.qtd / maxQtd * 100).toFixed(1)}%"></div></div>
       <div class="qtd">${r.qtd}</div>
     </div>
   `).join('');
@@ -306,7 +338,7 @@ function mostrarResultado(data) {
     <tr>
       <td>${p['DESCRIÇÃO DA PEÇA'] || ''}</td>
       <td><span class="badge badge-blue">${p['LOCAL'] || ''}</span></td>
-      <td style="color:var(--muted); font-style:italic">${p['OBS'] || ''}</td>
+      <td style="color:var(--muted); font-style:italic">${p['OBS'] || p['OBSERVAÇÃO'] || ''}</td>
       <td class="rota-cell">${p['ROTEIRO'] || ''}</td>
     </tr>
   `).join('');
@@ -315,18 +347,40 @@ function mostrarResultado(data) {
 }
 
 async function carregarHistorico() {
-  const res = await fetch('/historico');
-  const rows = await res.json();
-  document.getElementById('hist-tbody').innerHTML = rows.map(r => `
-    <tr>
-      <td>${r.id}</td>
-      <td>${r.nome}</td>
-      <td>${r.data}</td>
-      <td>${r.total_pecas}</td>
-      <td><a href="/download/${r.id}">⬇</a></td>
-    </tr>
-  `).join('');
+  const tbody = document.getElementById('hist-tbody');
+  const noData = document.getElementById('no-historico');
+  
+  try {
+    const res = await fetch('/historico');
+    const rows = await res.json();
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      noData.style.display = 'block';
+      return;
+    }
+
+    noData.style.display = 'none';
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td><strong>${r.id}</strong></td>
+        <td>${r.nome}</td>
+        <td>${r.data}</td>
+        <td>${r.total_pecas}</td>
+        <td>
+          <a href="/download/${r.id}" class="btn btn-sm btn-success" style="padding:4px 10px; font-size:0.8rem;">⬇ XLS</a>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--danger)">Erro ao carregar histórico</td></tr>`;
+  }
 }
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+  // Opcional: carregar histórico ao iniciar na aba correta
+});
 </script>
 </body>
 </html>

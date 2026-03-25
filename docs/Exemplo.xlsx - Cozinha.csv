@@ -1,0 +1,7 @@
+quantidade,altura,largura,espessura,material,nome,Fita Esquerda,Fita Direita,Fita Superior,Fita Inferior
+2,500,100,15,Branco,Base,1,1,1,1
+4,1200,200,18,Preto,Lateral esquerda,1,1,1,1
+1,100,670,15,azul,Lateral direita,1,1,1,1
+1,1500,600,15,verde,Topo,1,1,1,1
+2,2000,500,25,preto,Travessa,1,1,1,1
+1,550,250,18,preto,Rodapé,1,1,1,1
